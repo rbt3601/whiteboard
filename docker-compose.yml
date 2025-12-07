@@ -1,12 +1,42 @@
-version: "3.1"
+version: "3.8"
 services:
-  whiteboard:
-    image: rofl256/whiteboard
+
+  whiteboard1:
+    image: rajesh123321/whiteboard:redis-v1
+    container_name: whiteboard1
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_URI=mongodb://172.16.2.222:27017/whiteboard
+    ports:
+      - "8081:8080"
+
+  whiteboard2:
+    image: rajesh123321/whiteboard:redis-v1
+    container_name: whiteboard2
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_URI=mongodb://172.16.2.222:27017/whiteboard
+    ports:
+      - "8082:8080"
+
+  whiteboard3:
+    image: rajesh123321/whiteboard:redis-v1
+    container_name: whiteboard3
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_URI=mongodb://172.16.2.222:27017/whiteboard
+    ports:
+      - "8083:8080"
+
+  redis:
+    image: redis:latest
+    container_name: redis
     restart: always
     ports:
-      - "8080:8080/tcp"
-    command: --config=./config.default.yml
-    volumes:
-      - ./data/uploads:/opt/app/public/uploads"
-      - ./data/config.yml:/opt/app/config.default.yml:ro
-      - ./data/savedBoards:/opt/app/savedBoards"
+      - "6379:6379"
