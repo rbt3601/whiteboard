@@ -1,37 +1,46 @@
+#####################
+# Build stage
+#####################
 FROM node:18 AS base
 
-# Create app directory
-RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-# Install app dependencies
-COPY ./package.json package-lock.json ./
+# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Bundle frontend
+# Copy source code
 COPY src ./src
 COPY assets ./assets
 COPY config ./config
+
+# Build frontend
 RUN npm run build
 
-#####################
-# Final image
-#####################
 
+#####################
+# Final runtime stage
+#####################
 FROM node:18-alpine
 ENV NODE_ENV=prod
 
-LABEL maintainer="cracker0dks"
-
-# Create app directory
-RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-COPY ./package.json ./package-lock.json config.default.yml ./
+# Copy only production dependencies metadata
+COPY package.json package-lock.json ./
 RUN npm install --only=prod
 
-COPY scripts ./scripts
+# Copy configs (REQUIRED)
+COPY config ./config
+
+# Copy built frontend
 COPY --from=base /opt/app/dist ./dist
+
+# Copy backend scripts
+COPY scripts ./scripts
+
+# Copy static assets (optional but recommended)
+COPY assets ./assets
 
 EXPOSE 8080
 ENTRYPOINT ["npm", "run", "start"]
